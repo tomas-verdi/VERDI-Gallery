@@ -1,0 +1,446 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="UTF-8" />
+  <meta name="viewport" content="width=device-width, initial-scale=1.0, viewport-fit=cover" />
+  <meta name="apple-mobile-web-app-capable" content="yes" />
+  <meta name="apple-mobile-web-app-status-bar-style" content="black-translucent" />
+  <meta name="apple-mobile-web-app-title" content="VERDI" />
+  <meta name="theme-color" content="#0a0a0a" />
+  <title>VERDI</title>
+
+  <link rel="manifest" href="manifest.json" />
+  <link rel="apple-touch-icon" href="icon-192.png" />
+
+  <link rel="preconnect" href="https://fonts.googleapis.com" />
+  <link href="https://fonts.googleapis.com/css2?family=Cormorant+Garamond:ital,wght@0,300;0,400;1,300&family=Montserrat:wght@200;300;400&display=swap" rel="stylesheet" />
+
+  <style>
+    *, *::before, *::after { box-sizing: border-box; margin: 0; padding: 0; }
+
+    :root {
+      --black: #0a0a0a;
+      --white: #f5f2ee;
+      --gold: #b8965a;
+      --gray: #888;
+      --transition: 0.6s cubic-bezier(0.16, 1, 0.3, 1);
+    }
+
+    html, body {
+      width: 100%; height: 100%;
+      background: var(--black);
+      color: var(--white);
+      font-family: 'Montserrat', sans-serif;
+      font-weight: 200;
+      overflow: hidden;
+      -webkit-font-smoothing: antialiased;
+      user-select: none;
+    }
+
+    /* SPLASH */
+    #splash {
+      position: fixed; inset: 0; z-index: 100;
+      background: var(--black);
+      display: flex; flex-direction: column;
+      align-items: center; justify-content: center;
+      gap: 12px;
+      transition: opacity 0.8s ease, visibility 0.8s ease;
+    }
+    #splash.hidden { opacity: 0; visibility: hidden; }
+    #splash-logo {
+      font-family: 'Cormorant Garamond', serif;
+      font-size: clamp(42px, 10vw, 72px);
+      font-weight: 300;
+      letter-spacing: 0.25em;
+      color: var(--white);
+    }
+    #splash-sub {
+      font-size: 9px;
+      letter-spacing: 0.5em;
+      color: var(--gold);
+      text-transform: uppercase;
+    }
+
+    /* GALLERY */
+    #gallery {
+      position: fixed; inset: 0;
+      overflow-y: auto;
+      overflow-x: hidden;
+      -webkit-overflow-scrolling: touch;
+      opacity: 0;
+      transition: opacity 0.8s ease;
+    }
+    #gallery.visible { opacity: 1; }
+
+    #gallery-header {
+      position: sticky; top: 0; z-index: 10;
+      padding: env(safe-area-inset-top, 20px) 24px 16px;
+      padding-top: max(env(safe-area-inset-top), 20px);
+      background: linear-gradient(to bottom, var(--black) 60%, transparent);
+      display: flex; align-items: center; justify-content: space-between;
+    }
+    #header-logo {
+      font-family: 'Cormorant Garamond', serif;
+      font-size: 22px;
+      font-weight: 300;
+      letter-spacing: 0.2em;
+      color: var(--white);
+    }
+    #photo-count {
+      font-size: 9px;
+      letter-spacing: 0.3em;
+      color: var(--gray);
+      text-transform: uppercase;
+    }
+
+    /* Filters */
+    #filters {
+      display: flex;
+      gap: 8px;
+      padding: 0 24px 20px;
+      overflow-x: auto;
+      -webkit-overflow-scrolling: touch;
+      scrollbar-width: none;
+    }
+    #filters::-webkit-scrollbar { display: none; }
+    .filter-btn {
+      flex-shrink: 0;
+      padding: 6px 16px;
+      border: 1px solid rgba(255,255,255,0.15);
+      background: transparent;
+      color: var(--gray);
+      font-family: 'Montserrat', sans-serif;
+      font-size: 9px;
+      font-weight: 300;
+      letter-spacing: 0.3em;
+      text-transform: uppercase;
+      cursor: pointer;
+      transition: all 0.3s ease;
+      border-radius: 0;
+      -webkit-appearance: none;
+    }
+    .filter-btn.active {
+      border-color: var(--gold);
+      color: var(--gold);
+    }
+
+    /* Grid */
+    #grid {
+      display: grid;
+      grid-template-columns: repeat(2, 1fr);
+      gap: 2px;
+      padding: 0 2px;
+      padding-bottom: max(env(safe-area-inset-bottom), 24px);
+    }
+
+    .thumb {
+      position: relative;
+      aspect-ratio: 3/4;
+      overflow: hidden;
+      cursor: pointer;
+      background: #111;
+    }
+    .thumb img {
+      width: 100%; height: 100%;
+      object-fit: cover;
+      display: block;
+      transition: transform 0.6s cubic-bezier(0.16, 1, 0.3, 1), opacity 0.4s ease;
+      opacity: 0;
+    }
+    .thumb img.loaded { opacity: 1; }
+    .thumb:active img { transform: scale(1.03); }
+
+    .thumb-label {
+      position: absolute;
+      bottom: 0; left: 0; right: 0;
+      padding: 32px 12px 12px;
+      background: linear-gradient(transparent, rgba(0,0,0,0.6));
+      font-size: 8px;
+      letter-spacing: 0.25em;
+      text-transform: uppercase;
+      color: rgba(255,255,255,0.7);
+      opacity: 0;
+      transition: opacity 0.3s ease;
+    }
+    .thumb:hover .thumb-label { opacity: 1; }
+
+    /* LIGHTBOX */
+    #lightbox {
+      position: fixed; inset: 0; z-index: 50;
+      background: var(--black);
+      display: flex; flex-direction: column;
+      align-items: center; justify-content: center;
+      opacity: 0; visibility: hidden;
+      transition: opacity var(--transition), visibility var(--transition);
+    }
+    #lightbox.open { opacity: 1; visibility: visible; }
+
+    #lb-img-wrap {
+      position: relative;
+      width: 100%; height: 100%;
+      display: flex; align-items: center; justify-content: center;
+    }
+    #lb-img {
+      max-width: 100%; max-height: 100%;
+      width: 100%; height: 100%;
+      object-fit: contain;
+      transition: opacity 0.3s ease;
+    }
+    #lb-img.fading { opacity: 0; }
+
+    #lb-top {
+      position: absolute;
+      top: 0; left: 0; right: 0;
+      padding: max(env(safe-area-inset-top), 20px) 20px 20px;
+      display: flex; align-items: center; justify-content: space-between;
+      background: linear-gradient(to bottom, rgba(0,0,0,0.7), transparent);
+      z-index: 2;
+    }
+    #lb-close {
+      width: 40px; height: 40px;
+      display: flex; align-items: center; justify-content: center;
+      cursor: pointer;
+      color: var(--white);
+      font-size: 20px;
+      font-weight: 100;
+      opacity: 0.8;
+      background: none; border: none;
+    }
+    #lb-counter {
+      font-size: 9px;
+      letter-spacing: 0.3em;
+      color: var(--gray);
+    }
+    #lb-title {
+      font-family: 'Cormorant Garamond', serif;
+      font-size: 13px;
+      font-style: italic;
+      font-weight: 300;
+      letter-spacing: 0.1em;
+      color: rgba(255,255,255,0.6);
+    }
+
+    #lb-bottom {
+      position: absolute;
+      bottom: 0; left: 0; right: 0;
+      padding: 20px 20px max(env(safe-area-inset-bottom), 20px);
+      background: linear-gradient(transparent, rgba(0,0,0,0.7));
+      z-index: 2;
+      display: flex; align-items: center; justify-content: space-between;
+    }
+    .lb-nav {
+      width: 48px; height: 48px;
+      display: flex; align-items: center; justify-content: center;
+      cursor: pointer;
+      color: var(--white);
+      font-size: 22px;
+      opacity: 0.6;
+      transition: opacity 0.2s;
+      background: none; border: none;
+    }
+    .lb-nav:active { opacity: 1; }
+    #lb-category {
+      font-size: 8px;
+      letter-spacing: 0.4em;
+      text-transform: uppercase;
+      color: var(--gold);
+    }
+
+    #empty {
+      display: none;
+      flex-direction: column;
+      align-items: center;
+      justify-content: center;
+      height: 40vh;
+      gap: 12px;
+      color: var(--gray);
+    }
+    #empty.visible { display: flex; }
+    #empty p {
+      font-size: 10px;
+      letter-spacing: 0.3em;
+      text-transform: uppercase;
+    }
+  </style>
+</head>
+<body>
+
+<div id="splash">
+  <div id="splash-logo">VERDI</div>
+  <div id="splash-sub">Diseño</div>
+</div>
+
+<div id="gallery">
+  <div id="gallery-header">
+    <div id="header-logo">VERDI</div>
+    <div id="photo-count"></div>
+  </div>
+  <div id="filters"></div>
+  <div id="empty"><p>No photos</p></div>
+  <div id="grid"></div>
+</div>
+
+<div id="lightbox">
+  <div id="lb-img-wrap">
+    <img id="lb-img" src="" alt="" />
+  </div>
+  <div id="lb-top">
+    <button id="lb-close">✕</button>
+    <div id="lb-counter"></div>
+    <div id="lb-title"></div>
+  </div>
+  <div id="lb-bottom">
+    <button class="lb-nav" id="lb-prev">‹</button>
+    <div id="lb-category"></div>
+    <button class="lb-nav" id="lb-next">›</button>
+  </div>
+</div>
+
+<script>
+  // ── CONFIG ──────────────────────────────────────────────
+  // Only edit this section to manage photos.
+  // src: relative path like "photos/hotel1.jpg"
+  // title: optional label shown in lightbox
+  // category: optional filter tab (e.g. "Hotel", "Producto")
+  const CONFIG = {
+    photos: [
+      { src: "photos/hotel1.jpg",    title: "Suite Principal", category: "Hotel" },
+      { src: "photos/hotel2.jpg",    title: "Lobby",           category: "Hotel" },
+      { src: "photos/hotel3.jpg",    title: "Terraza",         category: "Hotel" },
+      { src: "photos/mochila1.jpg",  title: "Mochila VERDI",   category: "Producto" },
+      { src: "photos/mochila2.jpg",  title: "Detalle Crochet", category: "Producto" },
+      { src: "photos/producto1.jpg", title: "Colección",       category: "Producto" },
+    ]
+  };
+  // ────────────────────────────────────────────────────────
+
+  let activeCategory = "All";
+  let filteredPhotos = [];
+  let currentIndex = 0;
+  let touchStartX = 0;
+  let touchStartY = 0;
+
+  const gallery = document.getElementById('gallery');
+  const grid = document.getElementById('grid');
+  const filtersEl = document.getElementById('filters');
+  const lightbox = document.getElementById('lightbox');
+  const lbImg = document.getElementById('lb-img');
+  const lbCounter = document.getElementById('lb-counter');
+  const lbTitle = document.getElementById('lb-title');
+  const lbCategory = document.getElementById('lb-category');
+  const photoCount = document.getElementById('photo-count');
+  const emptyEl = document.getElementById('empty');
+
+  function getCategories() {
+    return ['All', ...new Set(CONFIG.photos.map(p => p.category).filter(Boolean))];
+  }
+
+  function getFiltered() {
+    if (activeCategory === 'All') return CONFIG.photos;
+    return CONFIG.photos.filter(p => p.category === activeCategory);
+  }
+
+  function renderFilters() {
+    const cats = getCategories();
+    if (cats.length <= 2) { filtersEl.style.display = 'none'; return; }
+    filtersEl.innerHTML = cats.map(c =>
+      `<button class="filter-btn ${c === activeCategory ? 'active' : ''}" data-cat="${c}">${c === 'All' ? 'Todo' : c}</button>`
+    ).join('');
+    filtersEl.querySelectorAll('.filter-btn').forEach(btn => {
+      btn.addEventListener('click', () => {
+        activeCategory = btn.dataset.cat;
+        renderFilters();
+        renderGrid();
+      });
+    });
+  }
+
+  function renderGrid() {
+    filteredPhotos = getFiltered();
+    grid.innerHTML = '';
+    if (filteredPhotos.length === 0) { emptyEl.classList.add('visible'); return; }
+    emptyEl.classList.remove('visible');
+    photoCount.textContent = `${filteredPhotos.length} ${filteredPhotos.length === 1 ? 'imagen' : 'imágenes'}`;
+    filteredPhotos.forEach((photo, i) => {
+      const div = document.createElement('div');
+      div.className = 'thumb';
+      div.innerHTML = `
+        <img src="${photo.src}" alt="${photo.title || ''}" loading="lazy" />
+        ${photo.title ? `<div class="thumb-label">${photo.title}</div>` : ''}
+      `;
+      const img = div.querySelector('img');
+      img.onload = () => img.classList.add('loaded');
+      if (img.complete) img.classList.add('loaded');
+      div.addEventListener('click', () => openLightbox(i));
+      grid.appendChild(div);
+    });
+  }
+
+  function openLightbox(index) {
+    currentIndex = index;
+    updateLightbox();
+    lightbox.classList.add('open');
+    document.body.style.overflow = 'hidden';
+  }
+
+  function closeLightbox() {
+    lightbox.classList.remove('open');
+    document.body.style.overflow = '';
+  }
+
+  function updateLightbox() {
+    const photo = filteredPhotos[currentIndex];
+    lbImg.classList.add('fading');
+    setTimeout(() => {
+      lbImg.src = photo.src;
+      lbImg.alt = photo.title || '';
+      lbImg.onload = () => lbImg.classList.remove('fading');
+      if (lbImg.complete) lbImg.classList.remove('fading');
+    }, 150);
+    lbCounter.textContent = `${currentIndex + 1} / ${filteredPhotos.length}`;
+    lbTitle.textContent = photo.title || '';
+    lbCategory.textContent = photo.category || '';
+  }
+
+  function navigate(dir) {
+    currentIndex = (currentIndex + dir + filteredPhotos.length) % filteredPhotos.length;
+    updateLightbox();
+  }
+
+  document.getElementById('lb-close').addEventListener('click', closeLightbox);
+  document.getElementById('lb-prev').addEventListener('click', () => navigate(-1));
+  document.getElementById('lb-next').addEventListener('click', () => navigate(1));
+
+  lightbox.addEventListener('touchstart', e => {
+    touchStartX = e.touches[0].clientX;
+    touchStartY = e.touches[0].clientY;
+  }, { passive: true });
+  lightbox.addEventListener('touchend', e => {
+    const dx = e.changedTouches[0].clientX - touchStartX;
+    const dy = e.changedTouches[0].clientY - touchStartY;
+    if (Math.abs(dx) > Math.abs(dy) && Math.abs(dx) > 40) navigate(dx < 0 ? 1 : -1);
+    else if (dy > 80 && Math.abs(dx) < 40) closeLightbox();
+  }, { passive: true });
+
+  document.addEventListener('keydown', e => {
+    if (!lightbox.classList.contains('open')) return;
+    if (e.key === 'ArrowRight') navigate(1);
+    if (e.key === 'ArrowLeft') navigate(-1);
+    if (e.key === 'Escape') closeLightbox();
+  });
+
+  if ('serviceWorker' in navigator) {
+    navigator.serviceWorker.register('sw.js').catch(() => {});
+  }
+
+  window.addEventListener('load', () => {
+    renderFilters();
+    renderGrid();
+    setTimeout(() => {
+      document.getElementById('splash').classList.add('hidden');
+      gallery.classList.add('visible');
+    }, 1200);
+  });
+</script>
+</body>
+</html>
