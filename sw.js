@@ -1,4 +1,4 @@
-const CACHE = 'verdi-v1';
+const CACHE = 'verdi-v2';
 const ASSETS = [
   '/',
   '/index.html',
