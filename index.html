@@ -550,6 +550,7 @@
     lbImg.classList.add('fading');
     setTimeout(() => {
       lbImg.src = photo.src;
+      lbImg.style.imageRendering = 'high-quality';
       lbImg.alt = photo.title || '';
       lbImg.onload = () => lbImg.classList.remove('fading');
       if (lbImg.complete) lbImg.classList.remove('fading');
