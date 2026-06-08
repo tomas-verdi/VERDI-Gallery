@@ -572,9 +572,7 @@
 
   
 
-  if ('serviceWorker' in navigator) {
-    navigator.serviceWorker.register('sw.js').catch(() => {});
-  }
+  // service worker disabled
 
   window.addEventListener('load', () => {
     renderFilters();
