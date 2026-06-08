@@ -1,7 +1,7 @@
 const CONFIG = {
   photos: [
-    { src: "L1010393.jpg", title: "", category: "General" },
-    { src: "IMG_0598.JPG", title: "", category: "General" },
+    { src: "L1010393.jpg", title: "", category: "Rugs" },
+    { src: "IMG_0598.JPG", title: "", category: "Window Coverings" },
     { src: "L1010416.JPG", title: "", category: "General" },
     { src: "L1010434.JPG", title: "", category: "General" },
     { src: "L1010379.JPG", title: "", category: "General" },
@@ -18,9 +18,9 @@ const CONFIG = {
     { src: "Libro_-80.JPG", title: "", category: "General" },
     { src: "Libro_-81.JPG", title: "", category: "General" },
     { src: "IMG_0361.JPG", title: "", category: "General" },
-    { src: "IMG_0601.JPG", title: "", category: "General" },
-    { src: "IMG_0606.JPG", title: "", category: "General" },
-    { src: "IMG_0609.JPG", title: "", category: "General" },
+    { src: "IMG_0601.JPG", title: "", category: "Hospitality" },
+    { src: "IMG_0606.JPG", title: "", category: "Art" },
+    { src: "IMG_0609.JPG", title: "", category: "Fashion" },
     { src: "IMG_0612.jpg", title: "", category: "General" },
     { src: "IMG_0620.JPG", title: "", category: "General" },
     { src: "IMG_0626.JPG", title: "", category: "General" },
