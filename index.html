@@ -605,7 +605,22 @@
     setTimeout(() => lbImg.style.transition = '', 300);
   });
 
-    document.addEventListener('keydown', e => {
+    let mouseDown = false, mousePanStartX = 0, mousePanStartY = 0;
+
+  lbImg.addEventListener('mousedown', e => {
+    if (scale > 1) { mouseDown = true; mousePanStartX = e.clientX; mousePanStartY = e.clientY; e.preventDefault(); }
+  });
+  document.addEventListener('mousemove', e => {
+    if (!mouseDown || scale <= 1) return;
+    panX = lastPanX + (e.clientX - mousePanStartX) / scale;
+    panY = lastPanY + (e.clientY - mousePanStartY) / scale;
+    applyTransform();
+  });
+  document.addEventListener('mouseup', () => {
+    if (mouseDown) { lastPanX = panX; lastPanY = panY; mouseDown = false; }
+  });
+
+  document.addEventListener('keydown', e => {
     if (!lightbox.classList.contains('open')) return;
     if (e.key === 'ArrowRight') navigate(1);
     if (e.key === 'ArrowLeft') navigate(-1);
