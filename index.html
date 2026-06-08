@@ -544,43 +544,42 @@
   document.getElementById('lb-prev').addEventListener('click', () => navigate(-1));
   document.getElementById('lb-next').addEventListener('click', () => navigate(1));
 
-  let scale = 1, lastScale = 1, pinchStartDist = 0, isSwiping = false;
-  lightbox.addEventListener('touchstart', e => {
-    if (e.touches.length === 1) { touchStartX = e.touches[0].clientX; touchStartY = e.touches[0].clientY; isSwiping = true; }
-    else { isSwiping = false; pinchStartDist = Math.hypot(e.touches[0].clientX - e.touches[1].clientX, e.touches[0].clientY - e.touches[1].clientY); }
-  }, { passive: true });
-  lightbox.addEventListener('touchmove', e => {
-    if (e.touches.length === 2) { e.preventDefault(); const dist = Math.hypot(e.touches[0].clientX - e.touches[1].clientX, e.touches[0].clientY - e.touches[1].clientY); scale = Math.min(Math.max(lastScale * (dist / pinchStartDist), 1), 4); lbImg.style.transform = 'scale(' + scale + ')'; }
-  }, { passive: false });
-  lightbox.addEventListener('touchend', e => {
-    if (e.touches.length < 2) { lastScale = scale; if (scale <= 1) { scale = 1; lastScale = 1; lbImg.style.transform = 'scale(1)'; } }
-    if (!isSwiping || scale > 1) { isSwiping = false; return; }
-    const dx = e.changedTouches[0].clientX - touchStartX;
-    const dy = e.changedTouches[0].clientY - touchStartY;
-    if (Math.abs(dx) > Math.abs(dy) && Math.abs(dx) > 40) navigate(dx < 0 ? 1 : -1);
-    else if (dy > 80 && Math.abs(dx) < 40) closeLightbox();
-    isSwiping = false;
-  }, { passive: true });
+  let scale = 1, lastScale = 1, pinchStartDist = 0;
+  let isSwiping = false, isPanning = false;
   let panX = 0, panY = 0, lastPanX = 0, lastPanY = 0, panStartX = 0, panStartY = 0;
 
   function applyTransform() {
     lbImg.style.transform = 'scale(' + scale + ') translate(' + panX + 'px, ' + panY + 'px)';
   }
-
   function resetTransform() {
     scale = 1; lastScale = 1; panX = 0; panY = 0; lastPanX = 0; lastPanY = 0;
     lbImg.style.transform = '';
   }
 
   lightbox.addEventListener('touchstart', e => {
-    if (e.touches.length === 1 && scale > 1) {
-      panStartX = e.touches[0].clientX;
-      panStartY = e.touches[0].clientY;
+    if (e.touches.length === 2) {
+      isSwiping = false; isPanning = false;
+      pinchStartDist = Math.hypot(e.touches[0].clientX - e.touches[1].clientX, e.touches[0].clientY - e.touches[1].clientY);
+    } else if (e.touches.length === 1) {
+      if (scale > 1) {
+        isPanning = true; isSwiping = false;
+        panStartX = e.touches[0].clientX;
+        panStartY = e.touches[0].clientY;
+      } else {
+        isSwiping = true; isPanning = false;
+        touchStartX = e.touches[0].clientX;
+        touchStartY = e.touches[0].clientY;
+      }
     }
   }, { passive: true });
 
   lightbox.addEventListener('touchmove', e => {
-    if (e.touches.length === 1 && scale > 1) {
+    if (e.touches.length === 2) {
+      e.preventDefault();
+      const dist = Math.hypot(e.touches[0].clientX - e.touches[1].clientX, e.touches[0].clientY - e.touches[1].clientY);
+      scale = Math.min(Math.max(lastScale * (dist / pinchStartDist), 1), 4);
+      applyTransform();
+    } else if (e.touches.length === 1 && isPanning) {
       e.preventDefault();
       panX = lastPanX + (e.touches[0].clientX - panStartX) / scale;
       panY = lastPanY + (e.touches[0].clientY - panStartY) / scale;
@@ -589,10 +588,14 @@
   }, { passive: false });
 
   lightbox.addEventListener('touchend', e => {
-    if (scale > 1) {
-      lastPanX = panX;
-      lastPanY = panY;
-    }
+    if (e.touches.length < 2 && scale >= 1) { lastScale = scale; }
+    if (isPanning) { lastPanX = panX; lastPanY = panY; isPanning = false; return; }
+    if (!isSwiping || scale > 1) { isSwiping = false; return; }
+    const dx = e.changedTouches[0].clientX - touchStartX;
+    const dy = e.changedTouches[0].clientY - touchStartY;
+    if (Math.abs(dx) > Math.abs(dy) && Math.abs(dx) > 40) { resetTransform(); navigate(dx < 0 ? 1 : -1); }
+    else if (dy > 80 && Math.abs(dx) < 40) { resetTransform(); closeLightbox(); }
+    isSwiping = false;
   }, { passive: true });
 
   lbImg.addEventListener('dblclick', () => {
@@ -602,7 +605,7 @@
     setTimeout(() => lbImg.style.transition = '', 300);
   });
 
-  document.addEventListener('keydown', e => {
+    document.addEventListener('keydown', e => {
     if (!lightbox.classList.contains('open')) return;
     if (e.key === 'ArrowRight') navigate(1);
     if (e.key === 'ArrowLeft') navigate(-1);
