@@ -1,7 +1,7 @@
 const CONFIG = {
   photos: [
-    { src: "IMG_0598.JPG", title: "", category: "VERDI" },
     { src: "L1010393.jpg", title: "", category: "VERDI" },
+    { src: "IMG_0598.JPG", title: "", category: "VERDI" },
     { src: "L1010416.JPG", title: "", category: "VERDI" },
     { src: "L1010434.JPG", title: "", category: "VERDI" },
     { src: "L1010379.JPG", title: "", category: "VERDI" },
