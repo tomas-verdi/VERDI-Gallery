@@ -1,9 +1,10 @@
 const CONFIG = {
   photos: [
-    { src: "L1010379.JPG", title: "", category: "VERDI" },
+    { src: "IMG_0598.JPG", title: "", category: "VERDI" },
     { src: "L1010393.jpg", title: "", category: "VERDI" },
     { src: "L1010416.JPG", title: "", category: "VERDI" },
     { src: "L1010434.JPG", title: "", category: "VERDI" },
+    { src: "L1010379.JPG", title: "", category: "VERDI" },
     { src: "L1010458.JPG", title: "", category: "VERDI" },
     { src: "L1010599.JPG", title: "", category: "VERDI" },
     { src: "L1014144.jpg", title: "", category: "VERDI" },
@@ -17,7 +18,6 @@ const CONFIG = {
     { src: "Libro_-80.JPG", title: "", category: "VERDI" },
     { src: "Libro_-81.JPG", title: "", category: "VERDI" },
     { src: "IMG_0361.JPG", title: "", category: "VERDI" },
-    { src: "IMG_0598.JPG", title: "", category: "VERDI" },
     { src: "IMG_0601.JPG", title: "", category: "VERDI" },
     { src: "IMG_0606.JPG", title: "", category: "VERDI" },
     { src: "IMG_0609.JPG", title: "", category: "VERDI" },
