@@ -154,5 +154,7 @@ const CONFIG = {
     { src: "IMG_0336.JPG", title: "", category: "VERDI" },
     { src: "IMG_0335.JPG", title: "", category: "VERDI" },
     { src: "IMG_7837.jpg", title: "", category: "VERDI" },
+      { src: "L1122866.JPG", title: "", category: "General" },
+    { src: "L1122980.JPG", title: "", category: "General" },
   ]
 };
