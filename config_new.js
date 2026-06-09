@@ -177,5 +177,7 @@ const CONFIG = {
       { src: "165-Venice-Verdi.MP4", title: "", category: "General" },
     { src: "166-Casablanca-Install.MP4", title: "", category: "General" },
     { src: "167-Santuario-Install.MP4", title: "", category: "General" },
+      { src: "164-Trade-Aerea-Verdi.MP4", title: "", category: "General" },
+    { src: "168-Casablanca-Verdi.MP4", title: "", category: "General" },
   ]
 };
