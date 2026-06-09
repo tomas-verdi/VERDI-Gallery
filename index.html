@@ -552,7 +552,8 @@
             if (e.isIntersecting) {
               videoEl.currentTime = 0;
               videoEl.play();
-              setTimeout(() => { videoEl.pause(); videoEl.currentTime = 0; }, 4000);
+              setTimeout(() => { videoEl.pause(); videoEl.currentTime = 0; }, 5000);
+              videoEl.loop = true;
             } else {
               videoEl.pause();
             }
