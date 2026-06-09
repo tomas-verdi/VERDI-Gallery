@@ -90,7 +90,7 @@ const CONFIG = {
     { src: "DSC_2418.JPG", title: "", category: "VERDI" },
     { src: "DSC_0909-3.jpg", title: "", category: "VERDI" },
     { src: "Plantain Fiber and Silk Wall Panel.JPG", title: "", category: "VERDI" },
-    { src: "15a. Rhombus, Natural Fique Warp with 90% White FIque and 10% Copper Warp _ lo res 2.JPG", title: "", category: "VERDI" },
+    { src: "Rhombus-Fique.JPG", title: "", category: "VERDI" },
     { src: "IMG_7646.JPG", title: "", category: "VERDI" },
     { src: "St. Regis_HUBER Design_15.jpg", title: "", category: "VERDI" },
     { src: "St. Regis_HUBER Design_20 (1).jpg", title: "", category: "VERDI" },
@@ -156,8 +156,5 @@ const CONFIG = {
     { src: "IMG_0336.JPG", title: "", category: "VERDI" },
     { src: "IMG_0335.JPG", title: "", category: "VERDI" },
     { src: "IMG_7837.jpg", title: "", category: "VERDI" },
-    { src: "IMG_1994.jpg", title: "", category: "VERDI" },
-    { src: "icon-512.png", title: "", category: "VERDI" },
-    { src: "icon-192.png", title: "", category: "VERDI" },
   ]
 };
