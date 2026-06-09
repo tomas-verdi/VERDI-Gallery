@@ -547,16 +547,13 @@
         const vid = div.querySelector('img');
         vid.outerHTML = `<video src="${photo.src}" muted playsinline preload="metadata" style="width:100%;height:100%;object-fit:cover;display:block;"></video>`;
         const videoEl = div.querySelector('video');
+        videoEl.addEventListener('timeupdate', () => {
+          if (videoEl.currentTime >= 5) videoEl.currentTime = 0;
+        });
         const observer = new IntersectionObserver((entries) => {
           entries.forEach(e => {
-            if (e.isIntersecting) {
-              videoEl.currentTime = 0;
-              videoEl.loop = true;
-              videoEl.play();
-              setTimeout(() => { videoEl.pause(); videoEl.loop = false; videoEl.currentTime = 0; }, 5000);
-            } else {
-              videoEl.pause();
-            }
+            if (e.isIntersecting) { videoEl.play(); }
+            else { videoEl.pause(); videoEl.currentTime = 0; }
           });
         }, { threshold: 0.3 });
         observer.observe(videoEl);
