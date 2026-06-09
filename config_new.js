@@ -106,6 +106,8 @@ const CONFIG = {
     { src: "DSC00527.JPG", title: "", category: "VERDI" },
     { src: "DSC00125.JPG", title: "", category: "VERDI" },
     { src: "DSC_2286.JPG", title: "", category: "VERDI" },
+        { src: "L1122980.JPG", title: "", category: "General" },
+    { src: "L1122866.JPG", title: "", category: "General" },
     { src: "IMG_0191.JPG", title: "", category: "VERDI" },
     { src: "IMG_0190.JPG", title: "", category: "VERDI" },
     { src: "IMG_0189 2.JPG", title: "", category: "VERDI" },
