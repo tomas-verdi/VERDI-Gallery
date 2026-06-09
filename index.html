@@ -531,9 +531,15 @@
         <img src="${photo.src}" alt="${photo.title || ''}" loading="lazy" />
         ${photo.title ? `<div class="thumb-label">${photo.title}</div>` : ''}
       `;
-      const img = div.querySelector('img');
-      img.onload = () => img.classList.add('loaded');
-      if (img.complete) img.classList.add('loaded');
+      const isVideo = /\.(mp4|mov|webm)$/i.test(photo.src);
+      if (isVideo) {
+        const vid = div.querySelector('img');
+        vid.outerHTML = `<video src="${photo.src}" muted playsinline loop autoplay style="width:100%;height:100%;object-fit:cover;display:block;"></video>`;
+      } else {
+        const img = div.querySelector('img');
+        img.onload = () => img.classList.add('loaded');
+        if (img.complete) img.classList.add('loaded');
+      }
       div.addEventListener('click', () => openLightbox(i));
       grid.appendChild(div);
     });
@@ -553,13 +559,19 @@
 
   function updateLightbox() {
     const photo = filteredPhotos[currentIndex];
+    const isVideo = /\.(mp4|mov|webm)$/i.test(photo.src);
+    const lbWrap = document.getElementById('lb-img-wrap');
     lbImg.classList.add('fading');
     setTimeout(() => {
-      lbImg.src = photo.src;
-      lbImg.style.imageRendering = 'high-quality';
-      lbImg.alt = photo.title || '';
-      lbImg.onload = () => lbImg.classList.remove('fading');
-      if (lbImg.complete) lbImg.classList.remove('fading');
+      if (isVideo) {
+        lbWrap.innerHTML = '<video id="lb-img" src="' + photo.src + '" controls autoplay playsinline style="max-width:100%;max-height:100%;width:auto;height:auto;"></video>';
+      } else {
+        lbImg.src = photo.src;
+        lbImg.style.imageRendering = 'high-quality';
+        lbImg.alt = photo.title || '';
+        lbImg.onload = () => lbImg.classList.remove('fading');
+        if (lbImg.complete) lbImg.classList.remove('fading');
+      }
     }, 150);
     lbCounter.textContent = `${currentIndex + 1} / ${filteredPhotos.length}`;
     lbTitle.textContent = photo.title || '';
