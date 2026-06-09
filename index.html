@@ -545,7 +545,20 @@
       const isVideo = /\.(mp4|mov|webm)$/i.test(photo.src);
       if (isVideo) {
         const vid = div.querySelector('img');
-        vid.outerHTML = `<video src="${photo.src}" muted playsinline loop autoplay style="width:100%;height:100%;object-fit:cover;display:block;"></video>`;
+        vid.outerHTML = `<video src="${photo.src}" muted playsinline preload="metadata" style="width:100%;height:100%;object-fit:cover;display:block;"></video>`;
+        const videoEl = div.querySelector('video');
+        const observer = new IntersectionObserver((entries) => {
+          entries.forEach(e => {
+            if (e.isIntersecting) {
+              videoEl.currentTime = 0;
+              videoEl.play();
+              setTimeout(() => { videoEl.pause(); videoEl.currentTime = 0; }, 4000);
+            } else {
+              videoEl.pause();
+            }
+          });
+        }, { threshold: 0.3 });
+        observer.observe(videoEl);
       } else {
         const img = div.querySelector('img');
         img.onload = () => img.classList.add('loaded');
