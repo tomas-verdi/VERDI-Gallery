@@ -1,4 +1,4 @@
-const CACHE = 'verdi-v11';
+const CACHE = 'verdi-v12';
 const ASSETS = ['/'];
 
 self.addEventListener('install', e => {
