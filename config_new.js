@@ -174,5 +174,8 @@ const CONFIG = {
     { src: "109-Ika-Fibra-de-Platano-y-Cobre.MOV", title: "", category: "General" },
     { src: "163-Casablanca-Alpaca-Boucle-Cumare-Cobre.MOV", title: "", category: "General" },
     { src: "L1082911.mov", title: "", category: "General" },
+      { src: "165-Venice-Verdi.MP4", title: "", category: "General" },
+    { src: "166-Casablanca-Install.MP4", title: "", category: "General" },
+    { src: "167-Santuario-Install.MP4", title: "", category: "General" },
   ]
 };
