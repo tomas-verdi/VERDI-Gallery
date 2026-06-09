@@ -1,6 +1,6 @@
 const CONFIG = {
   photos: [
-    { src: "IMG_0770.jpg", title: "", category: "General" },
+    { src: "IMG_0770.jpg", title: "Textil Cobre y Fibra y Platano", category: "General" },
     { src: "IMG_0013.JPG", title: "", category: "General" },
     { src: "DSC07750.JPG", title: "", category: "General" },
     { src: "DSC_8017.JPG", title: "", category: "General" },
