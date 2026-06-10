@@ -105,7 +105,18 @@ body { font-family: -apple-system, sans-serif; background: #f5f5f0; color: #222;
 .action-btn:hover { background: #f5f5f5; }
 .action-btn.primary { background: #1D9E75; color: #fff; border-color: #1D9E75; font-weight: 500; }
 .action-btn.primary:hover { background: #0F6E56; }
+.action-btn.publish { background: #1D9E75; color: #fff; border-color: #1D9E75; font-weight: 600; font-size: 14px; }
+.action-btn.publish:hover { background: #0F6E56; }
+.action-btn.upload { background: #3B82F6; color: #fff; border-color: #3B82F6; font-weight: 500; }
+.action-btn.upload:hover { background: #1D4ED8; }
 #sel-count { font-size: 13px; color: #666; min-width: 100px; }
+#upload-input { display: none; }
+#status-bar {
+  position: fixed; bottom: 60px; left: 50%; transform: translateX(-50%);
+  background: #222; color: #fff; padding: 10px 20px; border-radius: 8px;
+  font-size: 13px; display: none; z-index: 200; max-width: 500px; text-align: center;
+  box-shadow: 0 4px 12px rgba(0,0,0,0.3);
+}
 </style>
 </head>
 <body>
@@ -124,6 +135,8 @@ body { font-family: -apple-system, sans-serif; background: #f5f5f0; color: #222;
 
 <div id="grid"></div>
 
+<div id="status-bar"></div>
+
 <div id="export-bar">
   <span id="sel-count">0 seleccionadas</span>
   <select id="bulk-cat">
@@ -135,7 +148,10 @@ body { font-family: -apple-system, sans-serif; background: #f5f5f0; color: #222;
   <button class="action-btn" id="remove-bulk">Quitar</button>
   <button class="action-btn" id="select-all">Sel. todas</button>
   <button class="action-btn" id="clear-sel">Limpiar</button>
-  <button class="action-btn primary" id="export-btn">⬇ Exportar config_new.js</button>
+  <button class="action-btn primary" id="export-btn">⬇ Exportar</button>
+  <input type="file" id="upload-input" accept="image/*" multiple>
+  <button class="action-btn upload" id="upload-btn">📷 Agregar fotos</button>
+  <button class="action-btn publish" id="publish-btn">🚀 Publicar</button>
 </div>
 
 <script src="config_new.js"></script>
@@ -315,6 +331,89 @@ document.getElementById('export-btn').addEventListener('click', () => {
   a.href = URL.createObjectURL(new Blob([out], { type: 'text/javascript' }));
   a.download = 'config_new.js';
   a.click();
+});
+
+// ── Status bar ───────────────────────────────────────────────────────────────
+const statusBar = document.getElementById('status-bar');
+let statusTimer = null;
+function showStatus(msg, duration = 4000, isError = false) {
+  statusBar.textContent = msg;
+  statusBar.style.display = 'block';
+  statusBar.style.background = isError ? '#c0392b' : '#222';
+  clearTimeout(statusTimer);
+  if (duration > 0) statusTimer = setTimeout(() => { statusBar.style.display = 'none'; }, duration);
+}
+
+// ── Upload ────────────────────────────────────────────────────────────────────
+document.getElementById('upload-btn').addEventListener('click', () => {
+  document.getElementById('upload-input').click();
+});
+
+document.getElementById('upload-input').addEventListener('change', async (e) => {
+  const files = Array.from(e.target.files);
+  if (!files.length) return;
+  showStatus(`Subiendo ${files.length} foto(s)...`, 0);
+
+  let ok = 0, errors = [];
+  for (const file of files) {
+    const fd = new FormData();
+    fd.append('file', file, file.name);
+    try {
+      const res = await fetch('/upload', { method: 'POST', body: fd });
+      const data = await res.json();
+      if (data.ok) {
+        // Agregar al array y re-renderizar
+        const newEntry = { src: data.filename, title: data.filename.replace(/\.[^.]+$/, '').replace(/-/g, ' '), _id: Date.now() + ok, category: ['General'] };
+        photos.push(newEntry);
+        ok++;
+      } else {
+        errors.push(file.name + ': ' + (data.error || 'error'));
+      }
+    } catch (err) {
+      errors.push(file.name + ': ' + err.message);
+    }
+  }
+
+  e.target.value = '';
+  renderGrid();
+  if (errors.length) {
+    showStatus(`${ok} subidas, ${errors.length} errores: ${errors.join('; ')}`, 6000, true);
+  } else {
+    showStatus(`✅ ${ok} foto(s) agregadas. Recuerda publicar.`, 4000);
+  }
+});
+
+// ── Publish ───────────────────────────────────────────────────────────────────
+document.getElementById('publish-btn').addEventListener('click', async () => {
+  if (!confirm('¿Publicar cambios en la galería?\nEsto guardará config_new.js, actualizará index.html y hará git push.')) return;
+
+  showStatus('Publicando...', 0);
+  document.getElementById('publish-btn').disabled = true;
+
+  const lines = photos.map(p => {
+    const cats = getCats(p);
+    const catVal = cats.length === 1 ? `"${cats[0]}"` : JSON.stringify(cats);
+    return `    { src: "${p.src}", title: "${p.title}", category: ${catVal} }`;
+  }).join(',\n');
+  const config = `const CONFIG = {\n  photos: [\n${lines}\n  ]\n};\n`;
+
+  try {
+    const res = await fetch('/publish', {
+      method: 'POST',
+      headers: { 'Content-Type': 'application/json' },
+      body: JSON.stringify({ config })
+    });
+    const data = await res.json();
+    if (data.ok) {
+      showStatus('✅ Publicado correctamente en GitHub.', 5000);
+    } else {
+      showStatus('❌ Error: ' + (data.error || JSON.stringify(data)), 8000, true);
+    }
+  } catch (err) {
+    showStatus('❌ No se pudo conectar al servidor: ' + err.message, 8000, true);
+  } finally {
+    document.getElementById('publish-btn').disabled = false;
+  }
 });
 
 renderGrid();
