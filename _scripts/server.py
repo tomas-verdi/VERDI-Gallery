@@ -123,43 +123,40 @@ class Handler(BaseHTTPRequestHandler):
     # ── POST ──────────────────────────────────────────────────────────────────
 
     def do_POST(self):
-        if self.path == "/upload":
-            self.handle_upload()
-        elif self.path == "/publish":
-            self.handle_publish()
-        else:
-            self.send_json(404, {"error": "endpoint not found"})
+        try:
+            if self.path == "/upload":
+                self.handle_upload()
+            elif self.path == "/publish":
+                self.handle_publish()
+            else:
+                self.send_json(404, {"error": "endpoint not found"})
+        except Exception as e:
+            self.send_json(500, {"error": str(e)})
 
     def handle_upload(self):
-        ctype = self.headers.get("Content-Type", "")
-        length = int(self.headers.get("Content-Length", 0))
-        body = self.rfile.read(length)
+        try:
+            import cgi as _cgi
+            environ = {
+                "REQUEST_METHOD": "POST",
+                "CONTENT_TYPE":   self.headers.get("Content-Type", ""),
+                "CONTENT_LENGTH": self.headers.get("Content-Length", "0"),
+            }
+            form = _cgi.FieldStorage(
+                fp=self.rfile,
+                headers=self.headers,
+                environ=environ,
+                keep_blank_values=True,
+            )
+            file_item = form["file"] if "file" in form else None
+            if file_item is None or not file_item.filename:
+                return self.send_json(400, {"error": "no file received"})
+            filename  = file_item.filename
+            file_data = file_item.file.read()
+        except Exception as e:
+            return self.send_json(400, {"error": f"parse error: {e}"})
 
-        if "multipart/form-data" in ctype:
-            # parse multipart
-            boundary = ctype.split("boundary=")[-1].encode()
-            parts = body.split(b"--" + boundary)
-            file_data, filename = None, None
-            for part in parts:
-                if b"Content-Disposition" not in part:
-                    continue
-                header, _, content = part.partition(b"\r\n\r\n")
-                header_str = header.decode(errors="replace")
-                if 'name="file"' in header_str or "filename=" in header_str:
-                    # extract filename
-                    for seg in header_str.split(";"):
-                        seg = seg.strip()
-                        if seg.startswith("filename="):
-                            filename = seg.split("=", 1)[1].strip().strip('"')
-                    file_data = content.rstrip(b"\r\n")
-                    break
-        else:
-            # raw body, filename from header
-            filename = self.headers.get("X-Filename", f"upload_{int(time.time())}.jpg")
-            file_data = body
-
-        if not file_data or not filename:
-            return self.send_json(400, {"error": "no file received"})
+        if not file_data:
+            return self.send_json(400, {"error": "archivo vacío"})
 
         # Normalize filename
         safe_name = filename.replace(" ", "-")
