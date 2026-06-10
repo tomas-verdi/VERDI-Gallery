@@ -117,6 +117,30 @@ body { font-family: -apple-system, sans-serif; background: #f5f5f0; color: #222;
   font-size: 13px; display: none; z-index: 200; max-width: 500px; text-align: center;
   box-shadow: 0 4px 12px rgba(0,0,0,0.3);
 }
+
+/* Upload rename modal */
+#rename-overlay {
+  display: none; position: fixed; inset: 0; background: rgba(0,0,0,0.55);
+  z-index: 500; align-items: center; justify-content: center;
+}
+#rename-overlay.active { display: flex; }
+#rename-box {
+  background: #fff; border-radius: 12px; padding: 24px 28px;
+  width: 480px; max-width: 95vw; box-shadow: 0 8px 32px rgba(0,0,0,0.25);
+}
+#rename-box h2 { font-size: 15px; font-weight: 600; margin-bottom: 4px; }
+#rename-box .sub { font-size: 12px; color: #888; margin-bottom: 16px; }
+.rename-row { margin-bottom: 12px; }
+.rename-row label { font-size: 12px; color: #555; display: block; margin-bottom: 3px; }
+.rename-row input { width: 100%; padding: 7px 10px; border: 1px solid #ccc; border-radius: 6px; font-size: 13px; box-sizing: border-box; }
+.rename-row .preview { font-size: 11px; color: #888; margin-top: 3px; }
+#rename-preview-img { width: 100%; max-height: 160px; object-fit: contain; border-radius: 6px; background: #f0f0f0; margin-bottom: 14px; }
+#rename-progress { font-size: 12px; color: #888; margin-bottom: 12px; }
+.rename-actions { display: flex; gap: 8px; justify-content: flex-end; margin-top: 16px; }
+.rename-actions button { padding: 7px 18px; border-radius: 6px; font-size: 13px; border: 1px solid #ccc; cursor: pointer; background: #fff; }
+.rename-actions .btn-upload { background: #1D9E75; color: #fff; border-color: #1D9E75; font-weight: 600; }
+.rename-actions .btn-skip  { background: #f5f5f5; }
+.rename-actions .btn-cancel { background: #fff; color: #999; }
 </style>
 </head>
 <body>
@@ -134,6 +158,29 @@ body { font-family: -apple-system, sans-serif; background: #f5f5f0; color: #222;
 </div>
 
 <div id="grid"></div>
+
+<!-- Rename modal -->
+<div id="rename-overlay">
+  <div id="rename-box">
+    <h2>Agregar foto a la galería</h2>
+    <div class="sub" id="rename-progress">Foto 1 de 1</div>
+    <img id="rename-preview-img" src="" alt="preview">
+    <div class="rename-row">
+      <label>Nombre del archivo (sin extensión)</label>
+      <input type="text" id="rename-filename" placeholder="168-Nombre-Descriptivo">
+      <div class="preview" id="rename-filename-preview"></div>
+    </div>
+    <div class="rename-row">
+      <label>Título en la galería</label>
+      <input type="text" id="rename-title" placeholder="Descripción para el lightbox">
+    </div>
+    <div class="rename-actions">
+      <button class="btn-cancel" id="rename-cancel">Cancelar todo</button>
+      <button class="btn-skip"   id="rename-skip">Saltar esta</button>
+      <button class="btn-upload" id="rename-ok">Subir →</button>
+    </div>
+  </div>
+</div>
 
 <div id="status-bar"></div>
 
@@ -344,44 +391,103 @@ function showStatus(msg, duration = 4000, isError = false) {
   if (duration > 0) statusTimer = setTimeout(() => { statusBar.style.display = 'none'; }, duration);
 }
 
-// ── Upload ────────────────────────────────────────────────────────────────────
+// ── Upload con diálogo de renombrar ──────────────────────────────────────────
 document.getElementById('upload-btn').addEventListener('click', () => {
   document.getElementById('upload-input').click();
 });
 
 document.getElementById('upload-input').addEventListener('change', async (e) => {
   const files = Array.from(e.target.files);
+  e.target.value = '';
   if (!files.length) return;
-  showStatus(`Subiendo ${files.length} foto(s)...`, 0);
+  await processUploadQueue(files);
+});
 
-  let ok = 0, errors = [];
-  for (const file of files) {
+function nextSuggestedNumber() {
+  const nums = photos.map(p => parseInt(p.src.match(/^(\d+)/)?.[1] || '0')).filter(n => n > 0);
+  return nums.length ? Math.max(...nums) + 1 : 1;
+}
+
+function getExt(filename) {
+  return (filename.match(/\.[^.]+$/) || ['.jpg'])[0].toLowerCase();
+}
+
+async function processUploadQueue(files) {
+  const overlay  = document.getElementById('rename-overlay');
+  const progress = document.getElementById('rename-progress');
+  const previewImg  = document.getElementById('rename-preview-img');
+  const inputName   = document.getElementById('rename-filename');
+  const inputTitle  = document.getElementById('rename-title');
+  const filenamePreview = document.getElementById('rename-filename-preview');
+
+  let uploadedCount = 0;
+  let suggestedNum  = nextSuggestedNumber();
+
+  for (let i = 0; i < files.length; i++) {
+    const file = files[i];
+    const ext  = getExt(file.name);
+
+    // Pre-fill suggested name
+    const suggested = `${suggestedNum}-${file.name.replace(/\.[^.]+$/, '').replace(/[^a-zA-Z0-9À-ÿ]+/g, '-').replace(/^-+|-+$/g, '')}`;
+    inputName.value  = suggested;
+    inputTitle.value = suggested.replace(/^\d+-/, '').replace(/-/g, ' ');
+    progress.textContent = `Foto ${i + 1} de ${files.length}`;
+
+    // Preview
+    const objURL = URL.createObjectURL(file);
+    previewImg.src = objURL;
+
+    // Update preview label
+    const updatePreview = () => {
+      filenamePreview.textContent = (inputName.value.trim() || suggested) + ext;
+    };
+    inputName.addEventListener('input', updatePreview);
+    updatePreview();
+
+    overlay.classList.add('active');
+
+    // Wait for user action
+    const action = await new Promise(resolve => {
+      document.getElementById('rename-ok').onclick     = () => resolve('upload');
+      document.getElementById('rename-skip').onclick   = () => resolve('skip');
+      document.getElementById('rename-cancel').onclick = () => resolve('cancel');
+    });
+
+    overlay.classList.remove('active');
+    URL.revokeObjectURL(objURL);
+    inputName.removeEventListener('input', updatePreview);
+
+    if (action === 'cancel') break;
+    if (action === 'skip')   continue;
+
+    // Upload
+    const finalName  = (inputName.value.trim() || suggested) + ext;
+    const finalTitle = inputTitle.value.trim() || finalName.replace(/\.[^.]+$/, '').replace(/-/g, ' ');
+
+    showStatus(`Subiendo ${finalName}...`, 0);
     const fd = new FormData();
-    fd.append('file', file, file.name);
+    fd.append('file', file, finalName);
     try {
-      const res = await fetch('/upload', { method: 'POST', body: fd });
+      const res  = await fetch('/upload', { method: 'POST', body: fd });
       const data = await res.json();
       if (data.ok) {
-        // Agregar al array y re-renderizar
-        const newEntry = { src: data.filename, title: data.filename.replace(/\.[^.]+$/, '').replace(/-/g, ' '), _id: Date.now() + ok, category: ['General'] };
-        photos.push(newEntry);
-        ok++;
+        photos.push({ src: data.filename, title: finalTitle, _id: Date.now() + i, category: ['General'] });
+        uploadedCount++;
+        suggestedNum++;
+        renderGrid();
+        showStatus(`✅ ${data.filename} subida (${data.size_kb} KB). Recuerda publicar.`, 3000);
       } else {
-        errors.push(file.name + ': ' + (data.error || 'error'));
+        showStatus(`❌ Error subiendo ${finalName}: ${data.error}`, 6000, true);
       }
     } catch (err) {
-      errors.push(file.name + ': ' + err.message);
+      showStatus(`❌ Sin conexión al servidor: ${err.message}`, 6000, true);
     }
   }
 
-  e.target.value = '';
-  renderGrid();
-  if (errors.length) {
-    showStatus(`${ok} subidas, ${errors.length} errores: ${errors.join('; ')}`, 6000, true);
-  } else {
-    showStatus(`✅ ${ok} foto(s) agregadas. Recuerda publicar.`, 4000);
+  if (uploadedCount > 0) {
+    showStatus(`✅ ${uploadedCount} foto(s) agregadas. Usa Publicar para guardar en GitHub.`, 5000);
   }
-});
+}
 
 // ── Publish ───────────────────────────────────────────────────────────────────
 document.getElementById('publish-btn').addEventListener('click', async () => {

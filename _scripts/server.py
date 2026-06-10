@@ -134,29 +134,51 @@ class Handler(BaseHTTPRequestHandler):
             self.send_json(500, {"error": str(e)})
 
     def handle_upload(self):
-        try:
-            import cgi as _cgi
-            environ = {
-                "REQUEST_METHOD": "POST",
-                "CONTENT_TYPE":   self.headers.get("Content-Type", ""),
-                "CONTENT_LENGTH": self.headers.get("Content-Length", "0"),
-            }
-            form = _cgi.FieldStorage(
-                fp=self.rfile,
-                headers=self.headers,
-                environ=environ,
-                keep_blank_values=True,
-            )
-            file_item = form["file"] if "file" in form else None
-            if file_item is None or not file_item.filename:
-                return self.send_json(400, {"error": "no file received"})
-            filename  = file_item.filename
-            file_data = file_item.file.read()
-        except Exception as e:
-            return self.send_json(400, {"error": f"parse error: {e}"})
+        ctype = self.headers.get("Content-Type", "")
+        length = int(self.headers.get("Content-Length", 0))
+        raw = self.rfile.read(length)
 
-        if not file_data:
-            return self.send_json(400, {"error": "archivo vacío"})
+        # Extract boundary
+        filename, file_data = None, None
+        if "multipart/form-data" in ctype:
+            # Get boundary (may be quoted)
+            boundary = None
+            for part in ctype.split(";"):
+                part = part.strip()
+                if part.startswith("boundary="):
+                    boundary = part[9:].strip().strip('"').encode()
+                    break
+            if not boundary:
+                return self.send_json(400, {"error": "no boundary in Content-Type"})
+
+            # Split on boundary markers
+            delim = b"--" + boundary
+            sections = raw.split(delim)
+            for section in sections:
+                if b"Content-Disposition" not in section:
+                    continue
+                # Headers end at first \r\n\r\n
+                if b"\r\n\r\n" not in section:
+                    continue
+                head, body = section.split(b"\r\n\r\n", 1)
+                head_str = head.decode("utf-8", errors="replace")
+                if "filename=" not in head_str:
+                    continue
+                # Extract filename
+                for seg in head_str.split(";"):
+                    seg = seg.strip()
+                    if seg.startswith("filename="):
+                        filename = seg[9:].strip().strip('"')
+                # Remove trailing \r\n-- added by multipart
+                file_data = body.rstrip(b"\r\n")
+                break
+        else:
+            # Raw binary upload with X-Filename header
+            filename = self.headers.get("X-Filename", f"upload_{int(time.time())}.jpg")
+            file_data = raw
+
+        if not filename or not file_data:
+            return self.send_json(400, {"error": "no file received"})
 
         # Normalize filename
         safe_name = filename.replace(" ", "-")
