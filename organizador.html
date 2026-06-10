@@ -68,7 +68,14 @@ body { font-family: -apple-system, sans-serif; background: #f5f5f0; color: #222;
 .card-title {
   font-size: 11px; color: #666; line-height: 1.3; margin-bottom: 6px;
   display: -webkit-box; -webkit-line-clamp: 2; -webkit-box-orient: vertical;
-  overflow: hidden; min-height: 2.6em;
+  overflow: hidden; min-height: 2.6em; cursor: text;
+}
+.card-title:hover { color: #1D9E75; }
+.card-title-input {
+  font-size: 11px; color: #333; line-height: 1.3; margin-bottom: 6px;
+  width: 100%; border: 1px solid #1D9E75; border-radius: 4px;
+  padding: 2px 5px; box-sizing: border-box; outline: none; min-height: 2.6em;
+  font-family: inherit; resize: none;
 }
 
 .cat-tags { display: flex; flex-wrap: wrap; gap: 3px; margin-bottom: 6px; min-height: 20px; }
@@ -250,7 +257,7 @@ function buildCard(p) {
     </div>
     <div class="card-body">
       <div class="cat-tags">${tagsHtml}</div>
-      <div class="card-title">${p.title || p.src}</div>
+      <div class="card-title" title="Doble clic para editar">${p.title || p.src}</div>
       <div class="cat-checks">${checksHtml}</div>
     </div>`;
 
@@ -279,6 +286,29 @@ function buildCard(p) {
         ? newCats.map(c => `<span class="cat-tag tag-${catKey(c)}">${c}</span>`).join('')
         : '<span style="font-size:10px;color:#bbb">sin categoría</span>';
       updateStats();
+    });
+  });
+
+  // Doble clic en título → editar inline
+  card.querySelector('.card-title').addEventListener('dblclick', (e) => {
+    e.stopPropagation();
+    const titleEl = e.currentTarget;
+    const idx = photos.findIndex(x => x._id === p._id);
+    const ta = document.createElement('textarea');
+    ta.className = 'card-title-input';
+    ta.value = photos[idx].title || '';
+    ta.rows = 2;
+    titleEl.replaceWith(ta);
+    ta.focus(); ta.select();
+    const save = () => {
+      photos[idx].title = ta.value.trim();
+      titleEl.textContent = photos[idx].title || photos[idx].src;
+      ta.replaceWith(titleEl);
+    };
+    ta.addEventListener('blur', save);
+    ta.addEventListener('keydown', (ev) => {
+      if (ev.key === 'Enter' && !ev.shiftKey) { ev.preventDefault(); ta.blur(); }
+      if (ev.key === 'Escape') { ta.value = photos[idx].title || ''; ta.blur(); }
     });
   });
 
