@@ -88,6 +88,13 @@ body { font-family: -apple-system, sans-serif; background: #f5f5f0; color: #222;
 .tag-Hospitality { background:#E6F1FB; color:#0C447C; }
 .tag-Art         { background:#FBEAF0; color:#72243E; }
 .tag-Fashion     { background:#FAEEDA; color:#633806; }
+/* Colores para categorías personalizadas (rotación automática) */
+.tag-custom-0 { background:#E8F4FD; color:#1A5276; }
+.tag-custom-1 { background:#FEF9E7; color:#7D6608; }
+.tag-custom-2 { background:#F4ECF7; color:#6C3483; }
+.tag-custom-3 { background:#EAFAF1; color:#1E8449; }
+.tag-custom-4 { background:#FDEDEC; color:#922B21; }
+.tag-custom-5 { background:#EBF5FB; color:#1A5276; }
 
 .cat-checks { display: flex; flex-direction: column; gap: 2px; }
 .cat-checks label {
@@ -161,6 +168,7 @@ body { font-family: -apple-system, sans-serif; background: #f5f5f0; color: #222;
   <button class="filter-btn" data-cat="Hospitality">Hospitality</button>
   <button class="filter-btn" data-cat="Art">Art</button>
   <button class="filter-btn" data-cat="Fashion">Fashion</button>
+  <button class="filter-btn" id="add-cat-btn" style="border-style:dashed;color:#1D9E75;border-color:#1D9E75;">＋ Categoría</button>
   <span id="stats"></span>
 </div>
 
@@ -210,7 +218,66 @@ body { font-family: -apple-system, sans-serif; background: #f5f5f0; color: #222;
 
 <script src="config_new.js"></script>
 <script>
-const CATS = ['General','Rugs','Window Coverings','Hospitality','Art','Fashion'];
+const CATS_BASE = ['General','Rugs','Window Coverings','Hospitality','Art','Fashion'];
+const CATS_EXTRA = JSON.parse(localStorage.getItem('verdi-cats-extra') || '[]');
+const CATS = [...CATS_BASE, ...CATS_EXTRA];
+
+function addCategory() {
+  const name = prompt('Nombre de la nueva categoría:');
+  if (!name || !name.trim()) return;
+  const cat = name.trim();
+  if (CATS.includes(cat)) { alert(`"${cat}" ya existe.`); return; }
+
+  // Asignar clase CSS dinámica
+  const idx = CATS_EXTRA.length % 6;
+  const style = document.createElement('style');
+  style.textContent = `.tag-${catKey(cat)} { } `;
+  document.head.appendChild(style);
+
+  CATS.push(cat);
+  CATS_EXTRA.push(cat);
+  localStorage.setItem('verdi-cats-extra', JSON.stringify(CATS_EXTRA));
+
+  // Agregar al tag de cada tarjeta (checkboxes)
+  document.querySelectorAll('.cat-checks').forEach(div => {
+    const label = document.createElement('label');
+    label.innerHTML = `<input type="checkbox" data-cat="${cat}"> ${cat}`;
+    div.appendChild(label);
+    // Wiring del checkbox — necesita el _id de la tarjeta
+    const card = div.closest('.photo-card');
+    if (!card) return;
+    const pid = parseInt(card.dataset.pid);
+    label.querySelector('input').addEventListener('change', (e) => {
+      const i = photos.findIndex(x => x._id === pid);
+      if (i < 0) return;
+      if (e.target.checked) { if (!photos[i].category.includes(cat)) photos[i].category.push(cat); }
+      else photos[i].category = photos[i].category.filter(c => c !== cat);
+      updateStats();
+    });
+  });
+
+  // Agregar botón de filtro en toolbar
+  const btn = document.createElement('button');
+  btn.className = 'filter-btn';
+  btn.dataset.cat = cat;
+  btn.textContent = cat;
+  btn.addEventListener('click', filterBtnClick);
+  document.getElementById('add-cat-btn').before(btn);
+
+  // Agregar al select de bulk
+  const opt = document.createElement('option');
+  opt.textContent = cat;
+  document.getElementById('bulk-cat').appendChild(opt);
+
+  showStatus(`✅ Categoría "${cat}" agregada.`, 3000);
+}
+
+function filterBtnClick() {
+  document.querySelectorAll('.filter-btn').forEach(b => b.classList.remove('active'));
+  this.classList.add('active');
+  activeFilter = this.dataset.cat;
+  renderGrid();
+}
 const VIDEO_RE = /\.(mp4|mov)$/i;
 function isVideo(s) { return VIDEO_RE.test(s); }
 function thumbSrc(s) { return 'thumbs/' + s.replace(/(\d+)%/g, '$1pct') + (isVideo(s) ? '.jpg' : ''); }
@@ -229,6 +296,7 @@ const selCount = document.getElementById('sel-count');
 function buildCard(p) {
   const card = document.createElement('div');
   card.className = 'photo-card' + (selected.has(p._id) ? ' selected' : '');
+  card.dataset.pid = p._id;
   card.draggable = true;
 
   const vid = isVideo(p.src);
@@ -358,12 +426,21 @@ function updateSelCount() {
 }
 
 document.querySelectorAll('.filter-btn').forEach(btn => {
-  btn.addEventListener('click', () => {
-    document.querySelectorAll('.filter-btn').forEach(b => b.classList.remove('active'));
-    btn.classList.add('active');
-    activeFilter = btn.dataset.cat;
-    renderGrid();
-  });
+  if (btn.id !== 'add-cat-btn') btn.addEventListener('click', filterBtnClick);
+});
+document.getElementById('add-cat-btn').addEventListener('click', addCategory);
+
+// Restaurar categorías extra guardadas en localStorage
+CATS_EXTRA.forEach((cat, i) => {
+  const btn = document.createElement('button');
+  btn.className = 'filter-btn';
+  btn.dataset.cat = cat;
+  btn.textContent = cat;
+  btn.addEventListener('click', filterBtnClick);
+  document.getElementById('add-cat-btn').before(btn);
+  const opt = document.createElement('option');
+  opt.textContent = cat;
+  document.getElementById('bulk-cat').appendChild(opt);
 });
 
 document.getElementById('apply-bulk').addEventListener('click', () => {
