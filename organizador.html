@@ -142,7 +142,7 @@ body { font-family: -apple-system, sans-serif; background: #f5f5f0; color: #222;
 const CATS = ['General','Rugs','Window Coverings','Hospitality','Art','Fashion'];
 const VIDEO_RE = /\.(mp4|mov)$/i;
 function isVideo(s) { return VIDEO_RE.test(s); }
-function thumbSrc(s) { return isVideo(s) ? null : 'thumbs/' + s; }
+function thumbSrc(s) { return isVideo(s) ? null : 'thumbs/' + s.replace(/(\d+)%/g, '$1pct'); }
 function catKey(c) { return c.replace(/\s+/g,''); }
 function getCats(p) { return [].concat(p.category).filter(Boolean); }
 
