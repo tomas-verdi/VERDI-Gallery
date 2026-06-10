@@ -48,11 +48,10 @@
     }
     #splash.hidden { opacity: 0; visibility: hidden; }
     #splash-logo {
-      font-family: 'Cormorant Garamond', serif;
-      font-size: clamp(42px, 10vw, 72px);
-      font-weight: 300;
-      letter-spacing: 0.25em;
-      color: var(--white);
+      width: clamp(180px, 35vw, 320px);
+    }
+    #splash-logo img {
+      width: 100%; height: auto; display: block;
     }
     #splash-sub {
       font-size: 9px;
@@ -80,11 +79,10 @@
       display: flex; align-items: center; justify-content: space-between;
     }
     #header-logo {
-      font-family: 'Cormorant Garamond', serif;
-      font-size: 22px;
-      font-weight: 300;
-      letter-spacing: 0.2em;
-      color: var(--white);
+      height: 28px;
+    }
+    #header-logo img {
+      height: 100%; width: auto; display: block;
     }
     #photo-count {
       font-size: 9px;
@@ -266,13 +264,12 @@
 <body>
 
 <div id="splash">
-  <div id="splash-logo">VERDI</div>
-  <div id="splash-sub">Diseño</div>
+  <div id="splash-logo"><img src="logo-verdi.png" alt="VERDI"></div>
 </div>
 
 <div id="gallery">
   <div id="gallery-header">
-    <div id="header-logo">VERDI</div>
+    <div id="header-logo"><img src="logo-verdi.png" alt="VERDI"></div>
     <div id="photo-count"></div>
   </div>
   <div id="filters"></div>
