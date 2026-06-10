@@ -163,16 +163,9 @@ const CONFIG = {
     { src: "161-Data-Sheet-2.JPG", title: "Data Sheet 2", category: "General" },
     { src: "162-Instagram.jpg", title: "Instagram", category: "General" },
     { src: "163-Casablanca-Alpaca-Boucle-Cumare-Cobre.MOV", title: "Casablanca, Alpaca Boucle, Cumare, Cobre", category: "General" },
-      { src: "5. Tree of Life Lighting.MP4", title: "Verdi Showroom", category: "General" },
-    { src: "116-Yare-Acero-Taller-de-Verdi.MP4", title: "", category: "General" },
-    { src: "148-Hand-Weaving-Mochilas.MP4", title: "", category: "General" },
-    { src: "Tree Spinning.MP4", title: "El Arbol de la vida de VERDI", category: "General" },
-    { src: "Video Bailarina BALLET SONG v2.MP4", title: "La Bailarina", category: "General" },
-    { src: "VIDEO-2025-02-13-13-28-47.MP4", title: "FENDI x VERDI", category: "General" },
-    { src: "VIDEO-2026-01-28-13-28-24.MP4", title: "Sierra, Fique y Cobre", category: "General" },
-    { src: "40-La-Macorina-Design-Miami.mov", title: "La Macorina, Design Miami", category: "General" },
-    { src: "109-Ika-Fibra-de-Platano-y-Cobre.MOV", title: "Ika, Plantain and Copper", category: "General" },
-    { src: "163-Casablanca-Alpaca-Boucle-Cumare-Cobre.MOV", title: "Alpaca Boucle, Cobre y Cumare", category: "General" },
-    { src: "L1082911.mov", title: "Santuario, One and Only Mandarina", category: "General" },
+    { src: "164-Trade-Aerea-Verdi.MP4", title: "Trade Aérea Verdi", category: "General" },
+    { src: "165-Venice-Verdi.MP4", title: "Venice Verdi", category: "General" },
+    { src: "166-Casablanca-Install.MP4", title: "Casablanca Installation", category: "General" },
+    { src: "167-Santuario-Install.MP4", title: "Santuario Installation", category: "General" }
   ]
 };
