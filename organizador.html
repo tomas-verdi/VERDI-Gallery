@@ -570,7 +570,8 @@ async function processUploadQueue(files) {
     const finalName  = (inputName.value.trim() || suggested) + ext;
     const finalTitle = inputTitle.value.trim() || finalName.replace(/\.[^.]+$/, '').replace(/-/g, ' ');
 
-    showStatus(`Subiendo ${finalName}...`, 0);
+    const isVidUpload = /\.(mp4|mov|m4v|avi|webm)$/i.test(finalName);
+    showStatus(isVidUpload ? `Comprimiendo y subiendo ${finalName}... (puede tomar un minuto)` : `Subiendo ${finalName}...`, 0);
     const fd = new FormData();
     fd.append('file', file, finalName);
     try {

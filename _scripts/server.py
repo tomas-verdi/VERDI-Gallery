@@ -193,15 +193,34 @@ class Handler(BaseHTTPRequestHandler):
 
         try:
             if is_video:
-                # Guardar video tal cual (ya comprimido externamente)
-                dest.write_bytes(file_data)
-                # Generar thumbnail con ffmpeg
+                # Guardar primero el original en temp
+                tmp = dest.with_suffix('.tmp' + ext)
+                tmp.write_bytes(file_data)
+
+                # Comprimir con ffmpeg — CRF 18 = alta calidad, visible en 4K
+                # Mantiene resolución original (hasta 4K), solo recodifica eficientemente
+                result = subprocess.run([
+                    "ffmpeg", "-i", str(tmp),
+                    "-c:v", "libx264", "-crf", "18", "-preset", "slow",
+                    "-vf", "scale=trunc(iw/2)*2:trunc(ih/2)*2",  # asegura dimensiones pares
+                    "-c:a", "aac", "-b:a", "192k",
+                    "-movflags", "+faststart",  # streaming-friendly
+                    "-y", str(dest)
+                ], capture_output=True)
+
+                tmp.unlink(missing_ok=True)
+
+                # Si ffmpeg falló, usar el original sin comprimir
+                if result.returncode != 0 or not dest.exists():
+                    dest.write_bytes(file_data)
+
+                # Generar thumbnail
                 subprocess.run([
                     "ffmpeg", "-ss", "1", "-i", str(dest),
                     "-vframes", "1", "-vf", f"scale={THUMB_WIDTH}:-2",
                     "-q:v", "3", "-y", str(thumb_dest)
                 ], capture_output=True)
-                size_kb = len(file_data) // 1024
+                size_kb = dest.stat().st_size // 1024
             else:
                 compressed = compress_image(file_data, safe_name)
                 dest.write_bytes(compressed)
