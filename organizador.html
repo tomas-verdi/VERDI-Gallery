@@ -582,7 +582,9 @@ async function processUploadQueue(files) {
         uploadedCount++;
         suggestedNum++;
         renderGrid();
-        showStatus(`✅ ${data.filename} subida (${data.size_kb} KB). Recuerda publicar.`, 3000);
+        const fmt = kb => kb >= 1024 ? (kb/1024).toFixed(1) + ' MB' : kb + ' KB';
+        const sizeMsg = data.original_kb ? ` (${fmt(data.original_kb)} → ${fmt(data.size_kb)})` : ` (${fmt(data.size_kb)})`;
+        showStatus(`✅ ${data.filename}${sizeMsg}. Recuerda publicar.`, 4000);
       } else {
         showStatus(`❌ Error subiendo ${finalName}: ${data.error}`, 6000, true);
       }

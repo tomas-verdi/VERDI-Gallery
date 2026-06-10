@@ -220,8 +220,10 @@ class Handler(BaseHTTPRequestHandler):
                     "-vframes", "1", "-vf", f"scale={THUMB_WIDTH}:-2",
                     "-q:v", "3", "-y", str(thumb_dest)
                 ], capture_output=True)
+                original_kb = len(file_data) // 1024
                 size_kb = dest.stat().st_size // 1024
             else:
+                original_kb = len(file_data) // 1024
                 compressed = compress_image(file_data, safe_name)
                 dest.write_bytes(compressed)
                 make_thumbnail(compressed, THUMBS / safe_name)
@@ -231,6 +233,7 @@ class Handler(BaseHTTPRequestHandler):
             self.send_json(200, {
                 "ok": True,
                 "filename": safe_name,
+                "original_kb": original_kb,
                 "size_kb": size_kb,
                 "thumb": f"thumbs/{safe_name}" + (".jpg" if is_video else "")
             })
