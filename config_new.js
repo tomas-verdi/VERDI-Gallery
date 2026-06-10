@@ -153,7 +153,7 @@ const CONFIG = {
     { src: "167-Santuario-Install.MP4", title: "Santuario Installation", category: ["General","Fashion"] },
     { src: "145-Santuario-Install-One-and-Only-Mandarina.JPG", title: "Santuario Install, One and Only Mandarina", category: ["General","Art"] },
     { src: "146-Santurio-Install-One-and-Only-Mandarina.JPG", title: "Santurio Install One and Only Mandarina", category: ["General","Art"] },
-    { src: "147-Mochila-Piñas-Cobre-y-Azul.JPG", title: "Mochila Piñas, Cobre y Azul", category: ["General","Fashion"] },
+    { src: "169-spinning-cobre-azul.mp4", title: "La Primera Mochila VERDI", category: ["General","Fashion"] },
     { src: "149-Mochila-Seashells-Oro-y-Plata.JPG", title: "Mochila Seashells, Oro y Plata", category: ["General","Fashion"] },
     { src: "168-Mochila-Fibra-de-Platano-Azul.png", title: "Mochila Fibra de Platano Azul", category: ["General","Fashion"] },
     { src: "150-Mochila-kaia-Oro-y-Cobre.JPG", title: "Mochila kaia, Oro y Cobre", category: ["General","Fashion"] },
