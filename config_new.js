@@ -166,7 +166,7 @@ const CONFIG = {
     { src: "157-Pineapple-Clutch.JPG", title: "Pineapple Clutch", category: ["General","Fashion"] },
     { src: "158-Verdi-by-Johana-Ortiz.JPG", title: "Verdi by Johana Ortiz", category: ["General","Fashion"] },
     { src: "159-Verdy-by-Johana-Ortiz.JPG", title: "Verdy by Johana Ortiz", category: ["General","Fashion"] },
-    { src: "166-Casablanca-Install.MP4", title: "Casablanca Installation", category: ["General","Fashion"] },
+    { src: "166-Casablanca-Install.MP4", title: "Fendi x Verdi Unboxing", category: ["General","Fashion"] },
     { src: "VIDEO-2025-02-13-13-28-47.MP4", title: "FENDI x VERDI", category: ["General","Fashion"] },
     { src: "160-Data-Sheet-1.JPG", title: "Data Sheet 1", category: "General" },
     { src: "161-Data-Sheet-2.JPG", title: "Data Sheet 2", category: "General" },
