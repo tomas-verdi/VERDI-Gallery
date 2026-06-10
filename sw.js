@@ -14,7 +14,15 @@ self.addEventListener('activate', e => {
   );
 });
 
+const VIDEO_RE = /\.(mp4|mov)(\?.*)?$/i;
+
 self.addEventListener('fetch', e => {
+  // Videos: directo desde la red, sin cachear
+  if (VIDEO_RE.test(e.request.url)) {
+    e.respondWith(fetch(e.request));
+    return;
+  }
+  // Todo lo demás: network-first con fallback a cache
   e.respondWith(
     fetch(e.request).then(res => {
       const clone = res.clone();
