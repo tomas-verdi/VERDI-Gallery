@@ -164,11 +164,13 @@ class Handler(BaseHTTPRequestHandler):
                 head_str = head.decode("utf-8", errors="replace")
                 if "filename=" not in head_str:
                     continue
-                # Extract filename
+                # Extract filename — split on ; then strip headers that may bleed in
                 for seg in head_str.split(";"):
                     seg = seg.strip()
                     if seg.startswith("filename="):
-                        filename = seg[9:].strip().strip('"')
+                        raw = seg[9:].strip().strip('"')
+                        # Remove anything after \r\n (Content-Type bleeds into same segment)
+                        filename = raw.split('\r\n')[0].split('\n')[0].strip().strip('"')
                 # Remove trailing \r\n-- added by multipart
                 file_data = body.rstrip(b"\r\n")
                 break
