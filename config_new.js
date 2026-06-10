@@ -1,6 +1,8 @@
 const CONFIG = {
   photos: [
     { src: "01-Textil-Sheii-Cobre-y-Fibra-de-Platano.jpg", title: "Textil Sheii, Cobre y Fibra de Platano", category: "General" },
+    { src: "5. Tree of Life Lighting.MP4", title: "Verdi Showroom", category: "General" },
+    { src: "Tree Spinning.MP4", title: "El Arbol de la vida de VERDI", category: "General" },
     { src: "02-El-Arbol-de-la-Vida-de-Verdi.JPG", title: "El Arbol de la Vida de Verdi", category: "General" },
     { src: "03-Tomás-y-el-Árbol-de-la-Vida.JPG", title: "Tomás y el Árbol de la Vida", category: "General" },
     { src: "04-Planta-de-Fique-y-Don-Anselmo-Curiti-Col.JPG", title: "Planta de Fique y Don Anselmo, Curiti, Colombia", category: "General" },
@@ -88,6 +90,7 @@ const CONFIG = {
     { src: "85-Luma-Outdoor.jpg", title: "Luma Outdoor", category: "General" },
     { src: "164-Trade-Aerea-Verdi.MP4", title: "Trade Aérea Verdi", category: "General" },
     { src: "86-La-Bailarina.jpg", title: "La Bailarina", category: "General" },
+    { src: "Video Bailarina BALLET SONG v2.MP4", title: "La Bailarina", category: "General" },
     { src: "87-Textil-Plano-Fibra-de-Platano.JPG", title: "Textil Plano, Fibra de Platano", category: "General" },
     { src: "88-Textil-PAR-Fibra-de-Platano.JPG", title: "Textil PAR, Fibra de Platano", category: "General" },
     { src: "89-Textil-Sheii-Cumare-y-Cobre.JPG", title: "Textil Sheii, Cumare y Cobre", category: "General" },
@@ -150,6 +153,7 @@ const CONFIG = {
     { src: "145-Santuario-Install-One-and-Only-Mandarina.JPG", title: "Santuario Install, One and Only Mandarina", category: "General" },
     { src: "166-Casablanca-Install.MP4", title: "Casablanca Installation", category: "General" },
     { src: "146-Santurio-Install-One-and-Only-Mandarina.JPG", title: "Santurio Install One and Only Mandarina", category: "General" },
+    { src: "L1082911.mov", title: "Santuario, One and Only Mandarina", category: "General" },
     { src: "147-Mochila-Piñas-Cobre-y-Azul.JPG", title: "Mochila Piñas, Cobre y Azul", category: "General" },
     { src: "149-Mochila-Seashells-Oro-y-Plata.JPG", title: "Mochila Seashells, Oro y Plata", category: "General" },
     { src: "150-Mochila-kaia-Oro-y-Cobre.JPG", title: "Mochila kaia, Oro y Cobre", category: "General" },
@@ -162,6 +166,7 @@ const CONFIG = {
     { src: "157-Pineapple-Clutch.JPG", title: "Pineapple Clutch", category: "General" },
     { src: "158-Verdi-by-Johana-Ortiz.JPG", title: "Verdi by Johana Ortiz", category: "General" },
     { src: "159-Verdy-by-Johana-Ortiz.JPG", title: "Verdy by Johana Ortiz", category: "General" },
+    { src: "VIDEO-2025-02-13-13-28-47.MP4", title: "FENDI x VERDI", category: "General" },
     { src: "160-Data-Sheet-1.JPG", title: "Data Sheet 1", category: "General" },
     { src: "161-Data-Sheet-2.JPG", title: "Data Sheet 2", category: "General" },
     { src: "162-Instagram.jpg", title: "Instagram", category: "General" }
