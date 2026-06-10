@@ -185,18 +185,35 @@ class Handler(BaseHTTPRequestHandler):
         # Normalize filename
         safe_name = filename.replace(" ", "-")
         dest = ROOT / safe_name
-        thumb_dest = THUMBS / safe_name
+        thumb_dest = THUMBS / (safe_name + ".jpg")
+
+        VIDEO_EXTS = {'.mp4', '.mov', '.m4v', '.avi', '.webm'}
+        ext = Path(safe_name).suffix.lower()
+        is_video = ext in VIDEO_EXTS
 
         try:
-            compressed = compress_image(file_data, safe_name)
-            dest.write_bytes(compressed)
-            make_thumbnail(compressed, thumb_dest)
-            size_kb = len(compressed) // 1024
+            if is_video:
+                # Guardar video tal cual (ya comprimido externamente)
+                dest.write_bytes(file_data)
+                # Generar thumbnail con ffmpeg
+                subprocess.run([
+                    "ffmpeg", "-ss", "1", "-i", str(dest),
+                    "-vframes", "1", "-vf", f"scale={THUMB_WIDTH}:-2",
+                    "-q:v", "3", "-y", str(thumb_dest)
+                ], capture_output=True)
+                size_kb = len(file_data) // 1024
+            else:
+                compressed = compress_image(file_data, safe_name)
+                dest.write_bytes(compressed)
+                make_thumbnail(compressed, THUMBS / safe_name)
+                thumb_dest = THUMBS / safe_name
+                size_kb = len(compressed) // 1024
+
             self.send_json(200, {
                 "ok": True,
                 "filename": safe_name,
                 "size_kb": size_kb,
-                "thumb": f"thumbs/{safe_name}"
+                "thumb": f"thumbs/{safe_name}" + (".jpg" if is_video else "")
             })
         except Exception as e:
             self.send_json(500, {"error": str(e)})
