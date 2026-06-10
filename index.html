@@ -556,7 +556,7 @@
       const isVideo = /\.(mp4|mov|webm)$/i.test(photo.src);
       if (isVideo) {
         const vid = div.querySelector('img');
-        vid.outerHTML = `<video src="${photo.src}" muted playsinline preload="metadata" style="width:100%;height:100%;object-fit:cover;display:block;"></video>`;
+        vid.outerHTML = `<video src="${photo.src}" muted playsinline preload="none" style="width:100%;height:100%;object-fit:cover;display:block;"></video>`;
         const videoEl = div.querySelector('video');
         videoEl.addEventListener('timeupdate', () => {
           if (videoEl.currentTime >= 5) videoEl.currentTime = 0;
@@ -597,7 +597,7 @@
     lbImg.classList.add('fading');
     setTimeout(() => {
       if (isVideo) {
-        lbWrap.innerHTML = '<video id="lb-img" src="' + photo.src + '" controls autoplay playsinline style="max-width:100%;max-height:100%;width:auto;height:auto;"></video>';
+        lbWrap.innerHTML = '<video id="lb-img" src="' + photo.src + '" controls autoplay playsinline preload="none" style="max-width:100%;max-height:100%;width:auto;height:auto;"></video>';
       } else {
         lbImg.src = photo.src;
         lbImg.style.imageRendering = 'high-quality';
