@@ -120,7 +120,7 @@ const CONFIG = {
     { src: "113-Yare-Acero.JPG", title: "Yare, Acero", category: "General" },
     { src: "114-Yare-Acero.JPG", title: "Yare, Acero", category: "General" },
     { src: "115-Yare-Acero.JPG", title: "Yare, Acero", category: "General" },
-    { src: "CCB86040-5431-4457-805E-04CF1B717058 8.25.59 PM.MP4", title: "Yare, Acero, Taller de Verdi", category: "General" },
+    { src: "116-Yare-Acero-Taller-de-Verdi.MP4", title: "Yare, Acero, Taller de Verdi", category: "General" },
     { src: "117-Tassel-Yare-y-Acero.JPG", title: "Tassel, Yare y Acero", category: "General" },
     { src: "118-Paneles-Yare-Cobre.JPG", title: "Paneles, Yare Cobre", category: "General" },
     { src: "119-Kuru-Riyadh-Saudi-Arabia.JPG", title: "Kuru, Riyadh, Saudi Arabia", category: "General" },
