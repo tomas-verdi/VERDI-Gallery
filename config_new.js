@@ -174,7 +174,7 @@ const CONFIG = {
   ],
   categoryOrder: {
     "Rugs": [],
-    "Window Coverings": [],
+    "Window Coverings": ["117-Tassel-Yare-y-Acero.JPG","90-Cortinas-Fique.JPG","91-Cortinas-Fique.JPG","93-Sierra-Fibra-de-Platano-y-Seda-Bogota.JPG","94-Rombos-Fique-10pct-Cobre.JPG","95-Rug-Panels.JPG","96-Aluna-St-Regis-Punta-Mita.jpg","97-Kanaspi-St-Regis-Punta-Mita.jpg","98-Salone-del-Mobile-2025.JPG","99-Salone-del-Mobile-2025.JPG","103-Yare-Fique-Cobre-Panels.jpg","105-Ika-Seda-y-Lino.JPG","106-Ika-Seda-y-Lino.JPG","107-Ika-Seda-y-Lino.JPG","108-Ika-Fibra-de-Platano-y-seda.JPG","IMG_9653.MOV","110-Ika-Fibra-de-Platano-y-Cobre.JPG","111-Sierra-Fique-y-Cobre.JPG","112-Sierra-Fique-y-Cobre.JPG","113-Yare-Acero.JPG","114-Yare-Acero.JPG","115-Yare-Acero.JPG","116-Yare-Acero-Taller-de-Verdi.MP4","118-Paneles-Yare-Cobre.JPG","122-Textile-Architecture-Verdi-CDMX.JPG","128-Yare-Acero.JPG","129-Palma.JPG","130-Palma-Nighttime.JPG","131-Palma-Daytime.JPG","132-Plano-Fibra-de-Platano.JPG","133-Wallpaper-Fibra-de-Platano.JPG","134-Wallpaper-Install.JPG","135-Baby-Alpaca-Panel.JPG"],
     "Hospitality": [],
     "Art": [],
     "Fashion": []
