@@ -285,6 +285,7 @@ function catKey(c) { return c.replace(/\s+/g,''); }
 function getCats(p) { return [].concat(p.category).filter(Boolean); }
 
 let photos = CONFIG.photos.map((p, i) => ({ ...p, _id: i, category: [].concat(p.category).filter(Boolean) }));
+let categoryOrder = JSON.parse(JSON.stringify(CONFIG.categoryOrder || {}));
 let selected = new Set();
 let dragSrc = null;
 let activeFilter = 'All';
@@ -397,21 +398,82 @@ function buildCard(p) {
   card.addEventListener('drop', (e) => {
     e.preventDefault(); card.classList.remove('drag-over');
     if (dragSrc === null || dragSrc === p._id) return;
-    const fi = photos.findIndex(x => x._id === dragSrc);
-    const ti = photos.findIndex(x => x._id === p._id);
-    const [m] = photos.splice(fi, 1);
-    photos.splice(ti, 0, m);
+
+    const isCategoryView = activeFilter !== 'All' && activeFilter !== 'General';
+
+    if (isCategoryView) {
+      // Reordenar solo dentro del categoryOrder de esta categoría
+      const cat = activeFilter;
+      if (!categoryOrder[cat]) categoryOrder[cat] = [];
+
+      // Obtener lista visible actual en este filtro
+      const visible = photos.filter(x => getCats(x).includes(cat));
+      const srcPhoto = photos.find(x => x._id === dragSrc);
+      const tgtPhoto = p;
+
+      // Construir orden actualizado
+      let order = categoryOrder[cat].length > 0
+        ? [...categoryOrder[cat]]
+        : visible.map(x => x.src);
+
+      // Asegurar que todos los visibles estén en el orden
+      visible.forEach(x => { if (!order.includes(x.src)) order.push(x.src); });
+
+      const fi = order.indexOf(srcPhoto.src);
+      const ti = order.indexOf(tgtPhoto.src);
+      if (fi !== -1) order.splice(fi, 1);
+      const insertAt = ti === -1 ? order.length : (fi < ti ? ti : ti);
+      order.splice(insertAt, 0, srcPhoto.src);
+
+      categoryOrder[cat] = order;
+      updateCategoryOrderBadge();
+    } else {
+      // Reordenar globalmente
+      const fi = photos.findIndex(x => x._id === dragSrc);
+      const ti = photos.findIndex(x => x._id === p._id);
+      const [m] = photos.splice(fi, 1);
+      photos.splice(ti, 0, m);
+    }
     renderGrid();
   });
 
   return card;
 }
 
+function updateCategoryOrderBadge() {
+  let badge = document.getElementById('cat-order-badge');
+  const isCategoryView = activeFilter !== 'All' && activeFilter !== 'General';
+  const hasOrder = isCategoryView && categoryOrder[activeFilter] && categoryOrder[activeFilter].length > 0;
+  if (hasOrder) {
+    if (!badge) {
+      badge = document.createElement('span');
+      badge.id = 'cat-order-badge';
+      badge.style.cssText = 'font-size:11px;color:#fff;background:#1D9E75;padding:2px 8px;border-radius:10px;margin-left:8px;';
+      document.getElementById('toolbar').querySelector('#stats').before(badge);
+    }
+    badge.textContent = `✦ Orden personalizado: ${activeFilter}`;
+    badge.style.display = 'inline';
+  } else if (badge) {
+    badge.style.display = 'none';
+  }
+}
+
 function renderGrid() {
   grid.innerHTML = '';
-  const visible = activeFilter === 'All'
-    ? photos
-    : photos.filter(p => getCats(p).includes(activeFilter));
+  const isCategoryView = activeFilter !== 'All' && activeFilter !== 'General';
+  let visible;
+  if (activeFilter === 'All') {
+    visible = photos;
+  } else if (isCategoryView && categoryOrder[activeFilter] && categoryOrder[activeFilter].length > 0) {
+    const inCat = photos.filter(p => getCats(p).includes(activeFilter));
+    const order = categoryOrder[activeFilter];
+    const ordered = order.map(src => inCat.find(p => p.src === src)).filter(Boolean);
+    const rest    = inCat.filter(p => !order.includes(p.src));
+    visible = [...ordered, ...rest];
+  } else {
+    visible = photos.filter(p => getCats(p).includes(activeFilter));
+  }
+  updateCategoryOrderBadge();
   visible.forEach(p => grid.appendChild(buildCard(p)));
   updateStats();
 }
@@ -473,15 +535,21 @@ document.getElementById('clear-sel').addEventListener('click', () => {
   selected.clear(); updateSelCount(); renderGrid();
 });
 
-document.getElementById('export-btn').addEventListener('click', () => {
+function buildConfig() {
   const lines = photos.map(p => {
     const cats = getCats(p);
     const catVal = cats.length === 1 ? `"${cats[0]}"` : JSON.stringify(cats);
     return `    { src: "${p.src}", title: "${p.title}", category: ${catVal} }`;
   }).join(',\n');
-  const out = `const CONFIG = {\n  photos: [\n${lines}\n  ]\n};\n`;
+  const orderLines = Object.entries(categoryOrder)
+    .map(([cat, srcs]) => `    ${JSON.stringify(cat)}: ${JSON.stringify(srcs)}`)
+    .join(',\n');
+  return `const CONFIG = {\n  photos: [\n${lines}\n  ],\n  categoryOrder: {\n${orderLines}\n  }\n};\n`;
+}
+
+document.getElementById('export-btn').addEventListener('click', () => {
   const a = document.createElement('a');
-  a.href = URL.createObjectURL(new Blob([out], { type: 'text/javascript' }));
+  a.href = URL.createObjectURL(new Blob([buildConfig()], { type: 'text/javascript' }));
   a.download = 'config_new.js';
   a.click();
 });
@@ -607,12 +675,7 @@ document.getElementById('publish-btn').addEventListener('click', async () => {
   showStatus('Publicando...', 0);
   document.getElementById('publish-btn').disabled = true;
 
-  const lines = photos.map(p => {
-    const cats = getCats(p);
-    const catVal = cats.length === 1 ? `"${cats[0]}"` : JSON.stringify(cats);
-    return `    { src: "${p.src}", title: "${p.title}", category: ${catVal} }`;
-  }).join(',\n');
-  const config = `const CONFIG = {\n  photos: [\n${lines}\n  ]\n};\n`;
+  const config = buildConfig();
 
   try {
     const res = await fetch('/publish', {

@@ -171,5 +171,12 @@ const CONFIG = {
     { src: "160-Data-Sheet-1.JPG", title: "Data Sheet 1", category: "General" },
     { src: "161-Data-Sheet-2.JPG", title: "Data Sheet 2", category: "General" },
     { src: "162-Instagram.jpg", title: "Instagram", category: "General" }
-  ]
+  ],
+  categoryOrder: {
+    "Rugs": [],
+    "Window Coverings": [],
+    "Hospitality": [],
+    "Art": [],
+    "Fashion": []
+  }
 };
