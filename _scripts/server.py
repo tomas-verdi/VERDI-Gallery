@@ -112,7 +112,8 @@ class Handler(BaseHTTPRequestHandler):
     # ── GET ───────────────────────────────────────────────────────────────────
 
     def do_GET(self):
-        path = self.path.split("?")[0].lstrip("/") or "organizador.html"
+        from urllib.parse import unquote
+        path = unquote(self.path.split("?")[0].lstrip("/")) or "organizador.html"
         target = ROOT / path
         if target.is_file():
             self.send_file(target)

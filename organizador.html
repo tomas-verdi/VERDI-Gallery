@@ -278,7 +278,7 @@ function filterBtnClick() {
   activeFilter = this.dataset.cat;
   renderGrid();
 }
-const VIDEO_RE = /\.(mp4|mov)$/i;
+const VIDEO_RE = /\.(mp4|mov|m4v|webm|avi)(\?.*)?$/i;
 function isVideo(s) { return VIDEO_RE.test(s); }
 function thumbSrc(s) { return 'thumbs/' + s.replace(/(\d+)%/g, '$1pct') + (isVideo(s) ? '.jpg' : ''); }
 function catKey(c) { return c.replace(/\s+/g,''); }
