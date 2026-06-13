@@ -504,6 +504,7 @@
 
 
 
+
   // ────────────────────────────────────────────────────────
 
   let activeCategory = "All";
@@ -609,10 +610,23 @@
     const photo = filteredPhotos[currentIndex];
     const isVideo = /\.(mp4|mov|webm)$/i.test(photo.src);
     const lbWrap = document.getElementById('lb-img-wrap');
+
+    // Check if we need to switch element type (video ↔ image)
+    const currentIsVideo = lbImg && lbImg.tagName === 'VIDEO';
+    if (isVideo !== currentIsVideo) {
+      if (isVideo) {
+        lbWrap.innerHTML = '<video id="lb-img" src="' + photo.src + '" controls autoplay playsinline preload="none" style="max-width:100%;max-height:100%;width:auto;height:auto;"></video>';
+      } else {
+        lbWrap.innerHTML = '<img id="lb-img" />';
+      }
+      lbImg = document.getElementById('lb-img');
+    }
+
     lbImg.classList.add('fading');
     setTimeout(() => {
       if (isVideo) {
-        lbWrap.innerHTML = '<video id="lb-img" src="' + photo.src + '" controls autoplay playsinline preload="none" style="max-width:100%;max-height:100%;width:auto;height:auto;"></video>';
+        if (lbImg.src !== photo.src) lbImg.src = photo.src;
+        lbImg.classList.remove('fading');
       } else {
         lbImg.src = photo.src;
         lbImg.style.imageRendering = 'high-quality';
